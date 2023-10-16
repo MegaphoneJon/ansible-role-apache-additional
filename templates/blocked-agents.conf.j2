@@ -1,0 +1,3 @@
+{% for blocked_bot in blocked_bots %}
+SetEnvIfNoCase User-Agent "{{ blocked_bot }}"  BlockedAgent
+{% endfor %}

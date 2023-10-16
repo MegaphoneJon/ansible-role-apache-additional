@@ -10,3 +10,12 @@
   community.general.apache2_module:
     state: present
     name: proxy_http
+
+- name: Block bots at the conf level
+  ansible.builtin.template:
+    src: "templates/blocked-agents.conf.j2"
+    dest: "/etc/apache2/conf-available/blocked-agents.conf"
+  notify: restart apache
+
+- name: Enable blocked-agents.conf
+  command: a2enconf blocked-agents
