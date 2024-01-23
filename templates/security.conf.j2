@@ -1,0 +1,80 @@
+# Changing the following options will not really affect the security of the
+# server, but might make attacks slightly more difficult in some cases.
+
+#
+# ServerTokens
+# This directive configures what you return as the Server HTTP response
+# Header. The default is 'Full' which sends information about the OS-Type
+# and compiled in modules.
+# Set to one of:  Full | OS | Minimal | Minor | Major | Prod
+# where Full conveys the most information, and Prod the least.
+ServerTokens Prod
+
+#
+# Optionally add a line containing the server version and virtual host
+# name to server-generated pages (internal error documents, FTP directory
+# listings, mod_status and mod_info output etc., but not CGI generated
+# documents or custom error documents).
+# Set to "EMail" to also include a mailto: link to the ServerAdmin.
+# Set to one of:  On | Off | EMail
+ServerSignature Off
+
+#
+# Allow TRACE method
+#
+# Set to "extended" to also reflect the request body (only for testing and
+# diagnostic purposes).
+#
+# Set to one of:  On | Off | extended
+TraceEnable Off
+#TraceEnable On
+
+#
+# Forbid access to version control directories
+#
+# If you use version control systems in your document root, you should
+# probably deny access to their directories.
+#
+# Examples:
+#
+RedirectMatch 404 /\.git
+RedirectMatch 404 /\.svn
+RedirectMatch 404 /wp-cron.php
+RedirectMatch 404 /wp-config.php
+RedirectMatch 404 /wp-admin/install.php
+
+#
+# Setting this header will prevent MSIE from interpreting files as something
+# else than declared by the content type in the HTTP headers.
+# Requires mod_headers to be enabled.
+#
+Header always set X-Content-Type-Options: "nosniff"
+# Let's not do *always* on a HSTS request - failures shouldn't get HSTS.
+Header set Strict-Transport-Security "max-age=2592000; includeSubdomains"
+Header always set Referrer-Policy no-referrer-when-downgrade
+Header always edit Set-Cookie "(?i)^((?:(?!;\s?HttpOnly).)+)$" "$1; HttpOnly"
+Header always edit Set-Cookie "(?i)^((?:(?!;\s?secure).)+)$" "$1; secure"
+Header always set Content-Security-Policy-Report-Only "upgrade-insecure-requests; default-src 'self' data: 'unsafe-inline'; \
+  script-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.google.com *.googletagmanager.com \
+    connect.facebook.net platform.twitter.com *.twimg.com platform.linkedin.com cdnjs.cloudflare.com s.ytimg.com; \
+  script-src-elem 'self' data: 'unsafe-inline' *.google-analytics.com *.googletagmanager.com *.googleapis.com translate.google.com; \
+  connect-src 'self' data: 'unsafe-inline' *.googleapis.com *.google-analytics.com *.googletagmanager.com; \
+  style-src 'self' data: 'unsafe-inline' fonts.googleapis.com translate.googleapis.com platform.twitter.com *.twimg.com cdnjs.cloudflare.com; \
+  img-src 'self' data: blob: mosaico.io *.google.com *.googleapis.com *.gstatic.com www.facebook.com *.twitter.com *.twimg.com \
+    yt3.ggpht.com i.ytimg.com *.mailchimp.com *.global.ssl.fastly.net
+{%- if sites is defined -%}
+{%- for site in sites.values() -%}
+{%- if site.canonical_bare_url is not none %} {{ site.canonical_bare_url }}
+{%- endif -%}
+{%- endfor -%}
+{%- endif -%}; \
+  font-src 'self' data: fonts.googleapis.com fonts.gstatic.com themes.googleusercontent.com; \
+  frame-src 'self' data: *.google.com www.facebook.com platform.twitter.com syndication.twitter.com www.youtube.com *.soundcloud.com *.vimeo.com; \
+  worker-src 'self' data: blob: platform.twitter.com www.facebook.com www.youtube.com cdn.gtranslate.net 
+
+
+# We're gonna need to change this to embed iframes in other sites though. Might delegate this to the CMS later.
+Header set X-Frame-Options: SAMEORIGIN
+# Hides PHP usage/version
+Header always unset X-Powered-By
+Header always set Permissions-Policy "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()"

@@ -18,3 +18,19 @@
 
 - name: Enable blocked-agents.conf
   command: a2enconf blocked-agents
+
+- name: Enable headers module (for secure headers)
+  community.general.apache2_module:
+    state: present
+    name: headers
+
+- name: Harden Apache - reduce header info, CSP, HSTS, etc.
+  ansible.builtin.template:
+    src: "templates/security.conf.j2"
+    dest: "/etc/apache2/conf-available/security.conf"
+  notify: restart apache
+  # FIXME: Temp tag until this is on all my servers.
+  tags: apache-headers
+
+- name: Enable blocked-agents.conf
+  command: a2enconf security
