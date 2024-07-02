@@ -15,6 +15,7 @@
     src: "templates/blocked-agents.conf.j2"
     dest: "/etc/apache2/conf-available/blocked-agents.conf"
   notify: restart apache
+  tags: apache-bots
 
 - name: Enable blocked-agents.conf
   command: a2enconf blocked-agents
