@@ -10,12 +10,22 @@
     state: present
     name: proxy_http
 
+- name: Don't send (most) requests for .zip etc. files to PHP.
+  ansible.builtin.template:
+    src: "templates/block-snooping.conf.j2"
+    dest: "/etc/apache2/conf-available/block-snooping.conf"
+  notify: restart apache
+  tags: apache-badguys
+
+- name: Enable blocked-agents.conf
+  command: a2enconf block-snooping
+  tags: apache-badguys
+
 - name: Block bots at the conf level
   ansible.builtin.template:
     src: "templates/blocked-agents.conf.j2"
     dest: "/etc/apache2/conf-available/blocked-agents.conf"
   notify: restart apache
-  tags: apache-bots
 
 - name: Enable blocked-agents.conf
   command: a2enconf blocked-agents
@@ -31,7 +41,6 @@
     dest: "/etc/apache2/conf-available/security.conf"
   notify: restart apache
   # FIXME: Temp tag until this is on all my servers.
-  tags: apache-headers
 
-- name: Enable blocked-agents.conf
+- name: Enable security.conf
   command: a2enconf security

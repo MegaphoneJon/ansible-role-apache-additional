@@ -1,0 +1,12 @@
+# ---------------------------------------------------
+# Block folks searching for files they shouldn't.
+# Accounts for private file systems in Drupal/Nextcloud/Civi (and WP doesn't have them).
+# This reduces system load because these requests aren't redirected to PHP.
+# This is slightly redundant with Crowdsec but we'll leave it because it still reduces load.
+# ---------------------------------------------------
+
+<FilesMatch "\.(zip|tar|gz|exe|rar|7z|iso)$">
+    <If "! -f %{REQUEST_FILENAME} && %{REQUEST_URI} !~ m#^/system/files/# && %{REQUEST_URI} !~ m#^/remote.php/webdav/# && %{REQUEST_URI} !~ m#civicrm#">
+        Require all denied
+    </If>
+</FilesMatch>
